@@ -1,6 +1,11 @@
 #include <cstdio>
 
+#include "gomoku.h"
+
 int main(int argc, char *argv[]) {
-	printf("Hello\n");
+	gomoku g;
+
+	g.print();
+
 	return 0;
 }
