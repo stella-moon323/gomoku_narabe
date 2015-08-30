@@ -1,5 +1,6 @@
 #include <array>
 #include <string>
+#include <vector>
 #include <iostream>
 #include <cstdio>
 
@@ -13,8 +14,10 @@ const std::string board_color_name[] = {" . ", " o ", " x "};
 const std::string player_color_name[] = {"None", "Black", "White"};
 
 constexpr int BOARD_SIZE = 13;
+constexpr int WIN_TO_LINE_NUM = 5;
 
 struct pos2d {
+	pos2d(const int _x, const int _y) : x(_x), y(_y) {}
 	int x;
 	int y;
 };
@@ -50,6 +53,7 @@ public:
 		current_turn = Color::Black;
 	}
 
+	// 勝敗判定
 	Color judge() {
 		Color winner = Color::Empty;
 		for (int y = 0; y < BOARD_SIZE; ++y) {
@@ -83,11 +87,25 @@ public:
 		          << std::endl;
 	}
 
+	// 空き場所を生成
+	std::vector<pos2d> get_empty_pos() {
+		std::vector<pos2d> move_list;
+		for (int y = 0; y < BOARD_SIZE; ++y) {
+			for (int x = 0; x < BOARD_SIZE; ++x) {
+				if (Color::Empty == board[y][x]) {
+					move_list.emplace_back(pos2d(x, y));
+				}
+			}
+		}
+		return move_list;
+	}
+
 private:
 	bool in_board(int x, int y) {
 		return ((0 <= x) && (x < BOARD_SIZE) && (0 <= y) && (y < BOARD_SIZE));
 	}
 
+	// 指定された位置から5連があるか調べる
 	Color check_position(int x, int y) {
 		Color col = board[y][x];
 		if (Color::Empty == col) {
@@ -101,6 +119,7 @@ private:
 		return Color::Empty;
 	}
 
+	// 指定された方向へ5連があるか調べる
 	bool check_line(const int x, const int y, const pos2d &dir,
 	                const Color col) {
 		int cnt = 1;
@@ -111,7 +130,7 @@ private:
 				return false;
 			}
 			++cnt;
-			if (5 <= cnt) {
+			if (WIN_TO_LINE_NUM <= cnt) {
 				return true;
 			}
 			tmpX += dir.x;
