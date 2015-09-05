@@ -1,3 +1,5 @@
+#pragma once
+
 #include <array>
 #include <string>
 #include <vector>
@@ -13,10 +15,11 @@ enum class Color {
 const std::string board_color_name[] = {" . ", " o ", " x "};
 const std::string player_color_name[] = {"None", "Black", "White"};
 
-constexpr int BOARD_SIZE = 13;
+constexpr int BOARD_SIZE = 15;
 constexpr int WIN_TO_LINE_NUM = 5;
 
 struct pos2d {
+	pos2d() : x(0), y(0) {}
 	pos2d(const int _x, const int _y) : x(_x), y(_y) {}
 	int x;
 	int y;
@@ -51,6 +54,7 @@ public:
 			}
 		}
 		current_turn = Color::Black;
+		turn_count = 0;
 	}
 
 	// 勝敗判定
@@ -83,6 +87,7 @@ public:
 			std::cout << std::endl;
 			++row_cnt;
 		}
+		std::cout << "Trun : " << (turn_count + 1) << std::endl;
 		std::cout << "Current : " << player_color_name[to_int(current_turn)]
 		          << std::endl;
 	}
@@ -98,6 +103,21 @@ public:
 			}
 		}
 		return move_list;
+	}
+
+	// 現在の手番を返す
+	Color get_current_turn() { return current_turn; }
+
+	// 手を進める
+	bool move(const pos2d &pos) {
+		if (Color::Empty != board[pos.y][pos.x]) {
+			return false;
+		}
+
+		board[pos.y][pos.x] = current_turn;
+		change_turn();
+		++turn_count;
+		return true;
 	}
 
 private:
@@ -140,7 +160,14 @@ private:
 		return false;
 	}
 
+	// 手番変更
+	void change_turn() {
+		current_turn =
+		    static_cast<Color>(to_int(Color::ColorMax) - to_int(current_turn));
+	}
+
 private:
 	std::array<std::array<Color, BOARD_SIZE>, BOARD_SIZE> board; // 局面
 	Color current_turn; // 現在のプレイヤー
+	int turn_count;
 };
